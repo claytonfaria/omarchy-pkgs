@@ -26,6 +26,10 @@ def check(scriptlet, apple, missing=False):
         if not missing:
             (defaults / 'dot.bashrc').write_text('source omarchy-bash-rc\n')
         source = re.sub(r'/(?:etc|usr)(?=/)', directory + r'\g<0>', source)
+        # Fail closed if a future scriptlet adds a host path we do not redirect.
+        executable = '\n'.join(line for line in source.splitlines()
+                               if not line.lstrip().startswith('#'))
+        assert not re.search(r'(?<![\w/])/(?:etc|usr|run|var)(?:/|\b)', executable)
         source += '\n_apple_silicon() { ' + ('true' if apple else 'false') + '; }\n'
         source += '_etc_overrides_apply\n'
         result = subprocess.run(['bash', '-c', source], capture_output=True, text=True)

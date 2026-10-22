@@ -79,9 +79,8 @@ _etc_overrides_apply() {
   fi
 
   # Shell defaults apply on every platform, including Apple Silicon.
-  # Seed future users without overwriting existing users' customizations.
-  install -d /etc/skel
-  install -m 0644 /usr/share/omarchy/etc-overrides/dot.bashrc /etc/skel/.bashrc || return 1
+  # Replace the new-user template, leaving existing users' home files alone.
+  install -Dm644 /usr/share/omarchy/etc-overrides/dot.bashrc /etc/skel/.bashrc || return 1
 
   # Apple Silicon installs run on Arch Linux ARM's base with the Asahi
   # packages, and keep that system identity: /etc/os-release stays the
@@ -99,7 +98,7 @@ _etc_overrides_apply() {
   # Ensure parent dirs exist. cups-browsed may not be installed yet during ISO
   # bootstrap; do not create /etc/cups/cups-browsed.conf before the package is
   # installed or pacman will preserve its packaged file as a noisy .pacnew.
-  install -d /etc/plymouth /etc/security /etc/skel
+  install -d /etc/plymouth /etc/security
 
   # NOTE: these cp -f's are intentionally destructive on every install/upgrade.
   # Users who customize /etc/os-release, /etc/plymouth/plymouthd.conf (theme
